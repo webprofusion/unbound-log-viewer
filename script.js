@@ -9,7 +9,7 @@ class UnboundLogParser {
             info: 0,
             debug: 0
         };
-        
+
         this.initializeElements();
         this.setupEventListeners();
     }
@@ -25,24 +25,24 @@ class UnboundLogParser {
         this.searchInput = document.getElementById('searchInput');
         this.clearBtn = document.getElementById('clearBtn');
         this.exportBtn = document.getElementById('exportBtn');
-        
+
         // Tab elements
         this.fileTab = document.getElementById('fileTab');
         this.urlTab = document.getElementById('urlTab');
         this.fileTabContent = document.getElementById('fileTabContent');
         this.urlTabContent = document.getElementById('urlTabContent');
-        
+
         // URL input elements
         this.urlInput = document.getElementById('urlInput');
         this.fetchBtn = document.getElementById('fetchBtn');
         this.loadingIndicator = document.getElementById('loadingIndicator');
-        
+
         // Filter checkboxes
         this.showErrors = document.getElementById('showErrors');
         this.showWarnings = document.getElementById('showWarnings');
         this.showInfo = document.getElementById('showInfo');
         this.showDebug = document.getElementById('showDebug');
-        
+
         // Stats elements
         this.totalLines = document.getElementById('totalLines');
         this.errorCount = document.getElementById('errorCount');
@@ -54,16 +54,16 @@ class UnboundLogParser {
         // File upload events
         this.browseBtn.addEventListener('click', () => this.fileInput.click());
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
-        
+
         // Drag and drop events
         this.uploadArea.addEventListener('dragover', (e) => this.handleDragOver(e));
         this.uploadArea.addEventListener('dragleave', (e) => this.handleDragLeave(e));
         this.uploadArea.addEventListener('drop', (e) => this.handleDrop(e));
-        
+
         // Tab events
         this.fileTab.addEventListener('click', () => this.switchTab('file'));
         this.urlTab.addEventListener('click', () => this.switchTab('url'));
-        
+
         // URL fetch events
         this.fetchBtn.addEventListener('click', () => this.handleUrlFetch());
         this.urlInput.addEventListener('keypress', (e) => {
@@ -71,17 +71,17 @@ class UnboundLogParser {
                 this.handleUrlFetch();
             }
         });
-        
+
         // Filter events
         this.showErrors.addEventListener('change', () => this.applyFilters());
         this.showWarnings.addEventListener('change', () => this.applyFilters());
         this.showInfo.addEventListener('change', () => this.applyFilters());
         this.showDebug.addEventListener('change', () => this.applyFilters());
-        
+
         // Search events
         this.searchInput.addEventListener('input', () => this.applyFilters());
         this.clearBtn.addEventListener('click', () => this.clearSearch());
-        
+
         // Export event
         this.exportBtn.addEventListener('click', () => this.exportResults());
     }
@@ -99,7 +99,7 @@ class UnboundLogParser {
     handleDrop(e) {
         e.preventDefault();
         this.uploadArea.classList.remove('dragover');
-        
+
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             this.processFile(files[0]);
@@ -154,13 +154,13 @@ class UnboundLogParser {
         const patterns = [
             // Standard Unbound log format: timestamp [pid:thread] level: message
             /^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+\[(\d+:\d+)\]\s+(error|warning|info|debug|notice):\s*(.+)$/i,
-            
+
             // Alternative format: timestamp level [pid:thread]: message
             /^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+(error|warning|info|debug|notice)\s+\[(\d+:\d+)\]:\s*(.+)$/i,
-            
+
             // Simple format: timestamp level: message
             /^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+(error|warning|info|debug|notice):\s*(.+)$/i,
-            
+
             // Syslog format: Mon DD HH:MM:SS hostname unbound[pid]: level: message
             /^(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+\S+\s+unbound(?:\[\d+\])?:\s+(error|warning|info|debug|notice):\s*(.+)$/i
         ];
@@ -169,7 +169,7 @@ class UnboundLogParser {
             const match = line.match(pattern);
             if (match) {
                 let timestamp, level, message, pid;
-                
+
                 if (match.length === 5) {
                     [, timestamp, pid, level, message] = match;
                 } else if (match.length === 4) {
@@ -193,14 +193,14 @@ class UnboundLogParser {
         // If no pattern matches, treat as info level with generic parsing
         const timestampMatch = line.match(/^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})|(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})/);
         const timestamp = timestampMatch ? timestampMatch[0] : 'Unknown';
-        
+
         // Check for error keywords in the message
         const errorKeywords = ['error', 'fail', 'exception', 'critical', 'fatal', 'denied', 'refused', 'timeout'];
         const warningKeywords = ['warning', 'warn', 'deprecated', 'retry', 'slow', 'suspect'];
-        
+
         let detectedLevel = 'info';
         const lowerLine = line.toLowerCase();
-        
+
         if (errorKeywords.some(keyword => lowerLine.includes(keyword))) {
             detectedLevel = 'errors';
         } else if (warningKeywords.some(keyword => lowerLine.includes(keyword))) {
@@ -251,7 +251,7 @@ class UnboundLogParser {
 
     renderLogs() {
         this.logContent.innerHTML = '';
-        
+
         this.filteredData.forEach(logEntry => {
             const entryElement = this.createLogEntryElement(logEntry);
             this.logContent.appendChild(entryElement);
@@ -322,7 +322,7 @@ class UnboundLogParser {
             if (entry.level === 'debug' && showDebug) levelMatch = true;
 
             // Search filter
-            const searchMatch = !searchTerm || 
+            const searchMatch = !searchTerm ||
                 entry.message.toLowerCase().includes(searchTerm) ||
                 entry.timestamp.toLowerCase().includes(searchTerm);
 
@@ -366,7 +366,7 @@ class UnboundLogParser {
 
         const dataStr = JSON.stringify(exportData, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        
+
         const link = document.createElement('a');
         link.href = URL.createObjectURL(dataBlob);
         link.download = `unbound-log-analysis-${new Date().toISOString().slice(0, 10)}.json`;
@@ -429,8 +429,8 @@ class UnboundLogParser {
                 'dnscheck.tools',
                 'dnschecker.org'
             ];
-            
-            return validDomains.some(domain => 
+
+            return validDomains.some(domain =>
                 urlObj.hostname === domain || urlObj.hostname.endsWith('.' + domain)
             );
         } catch {
@@ -442,6 +442,7 @@ class UnboundLogParser {
         // For security reasons, we need to use a CORS proxy or handle this server-side
         // For now, we'll try to fetch directly and handle CORS issues
         try {
+
             const response = await fetch(url, {
                 method: 'GET',
                 mode: 'cors',
@@ -464,32 +465,35 @@ class UnboundLogParser {
 
             return content;
         } catch (error) {
-            if (error.name === 'TypeError' && error.message.includes('CORS')) {
-                // Try using a CORS proxy as fallback
-                return await this.fetchWithCorsProxy(url);
-            }
-            throw error;
+            // Try using a CORS proxy as fallback
+            return await this.fetchWithCorsProxy(url);
         }
     }
 
     async fetchWithCorsProxy(url) {
         // Use a public CORS proxy service
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-        
+        const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+
         try {
-            const response = await fetch(proxyUrl);
+            const response = await fetch(proxyUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'text/plain, text/html, */*'
+                }
+            });
+
             if (!response.ok) {
                 throw new Error(`Proxy request failed: ${response.status}`);
             }
-            
-            const data = await response.json();
-            let content = data.contents;
-            
-            // If the content is HTML, extract log content
-            if (content.includes('<html') || content.includes('<!DOCTYPE')) {
+
+            const contentType = response.headers.get('content-type');
+            let content = await response.text();
+
+             // If the response is HTML, try to extract log content
+            if (contentType && contentType.includes('text/html')) {
                 content = this.extractLogFromHtml(content);
             }
-            
+
             return content;
         } catch (error) {
             throw new Error(`Failed to fetch via proxy: ${error.message}`);
@@ -526,7 +530,7 @@ class UnboundLogParser {
         if (!logContent) {
             const textContent = tempDiv.textContent || tempDiv.innerText || '';
             const lines = textContent.split('\n');
-            
+
             // Filter lines that look like log entries
             const logLines = lines.filter(line => {
                 const trimmed = line.trim();
@@ -562,7 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add some sample functionality for demo purposes
-window.loadSampleLog = function() {
+window.loadSampleLog = function () {
     const sampleLog = `2024-07-02 10:15:23 [1234:0] info: unbound 1.17.1 start time
 2024-07-02 10:15:23 [1234:0] info: listening on port 53
 2024-07-02 10:15:24 [1234:1] info: query example.com A IN
@@ -573,17 +577,17 @@ window.loadSampleLog = function() {
 2024-07-02 10:15:29 [1234:0] warning: dnssec validation failed for invalid.dnssec-failed.org
 2024-07-02 10:15:30 [1234:4] debug: cache lookup for www.google.com A IN
 2024-07-02 10:15:31 [1234:4] info: cached response for www.google.com A IN`;
-    
+
     const parser = new UnboundLogParser();
     parser.parseLogContent(sampleLog);
     parser.showSections();
 };
 
 // Add sample URL for testing
-window.loadSampleUrl = function() {
+window.loadSampleUrl = function () {
     const parser = window.unboundParser;
     if (parser) {
         parser.switchTab('url');
-        parser.urlInput.value = 'https://unboundtest.com/m/A/tecx.teamhgs.com/KX4TKRXH';
+        parser.urlInput.value = 'https://unboundtest.com/m/CAA/test.com/JIKBAWFU';
     }
 };
