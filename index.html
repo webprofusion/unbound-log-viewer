@@ -15,18 +15,46 @@
 
         <main>
             <section class="upload-section">
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-content">
-                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14,2 14,8 20,8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10,9 9,9 8,9"></polyline>
-                        </svg>
-                        <h3>Drop your Unbound log file here</h3>
-                        <p>or <button type="button" class="browse-btn" id="browseBtn">browse files</button></p>
-                        <input type="file" id="fileInput" accept=".log,.txt" style="display: none;">
+                <div class="input-tabs">
+                    <button type="button" class="tab-btn active" id="fileTab">Upload File</button>
+                    <button type="button" class="tab-btn" id="urlTab">Fetch from URL</button>
+                </div>
+                
+                <div class="tab-content" id="fileTabContent">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14,2 14,8 20,8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10,9 9,9 8,9"></polyline>
+                            </svg>
+                            <h3>Drop your Unbound log file here</h3>
+                            <p>or <button type="button" class="browse-btn" id="browseBtn">browse files</button></p>
+                            <input type="file" id="fileInput" accept=".log,.txt" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="urlTabContent" style="display: none;">
+                    <div class="url-input-area">
+                        <div class="url-input-content">
+                            <svg class="url-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            </svg>
+                            <h3>Fetch log from URL</h3>
+                            <p>Enter an Unbound test URL (e.g., unboundtest.com links)</p>
+                            <div class="url-input-group">
+                                <input type="url" id="urlInput" placeholder="https://unboundtest.com/m/A/example.com/ABCD1234" />
+                                <button type="button" id="fetchBtn">Fetch Log</button>
+                            </div>
+                            <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+                                <div class="loading"></div>
+                                <span>Fetching log data...</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

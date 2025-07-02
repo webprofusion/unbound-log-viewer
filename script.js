@@ -26,6 +26,17 @@ class UnboundLogParser {
         this.clearBtn = document.getElementById('clearBtn');
         this.exportBtn = document.getElementById('exportBtn');
         
+        // Tab elements
+        this.fileTab = document.getElementById('fileTab');
+        this.urlTab = document.getElementById('urlTab');
+        this.fileTabContent = document.getElementById('fileTabContent');
+        this.urlTabContent = document.getElementById('urlTabContent');
+        
+        // URL input elements
+        this.urlInput = document.getElementById('urlInput');
+        this.fetchBtn = document.getElementById('fetchBtn');
+        this.loadingIndicator = document.getElementById('loadingIndicator');
+        
         // Filter checkboxes
         this.showErrors = document.getElementById('showErrors');
         this.showWarnings = document.getElementById('showWarnings');
@@ -48,6 +59,18 @@ class UnboundLogParser {
         this.uploadArea.addEventListener('dragover', (e) => this.handleDragOver(e));
         this.uploadArea.addEventListener('dragleave', (e) => this.handleDragLeave(e));
         this.uploadArea.addEventListener('drop', (e) => this.handleDrop(e));
+        
+        // Tab events
+        this.fileTab.addEventListener('click', () => this.switchTab('file'));
+        this.urlTab.addEventListener('click', () => this.switchTab('url'));
+        
+        // URL fetch events
+        this.fetchBtn.addEventListener('click', () => this.handleUrlFetch());
+        this.urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.handleUrlFetch();
+            }
+        });
         
         // Filter events
         this.showErrors.addEventListener('change', () => this.applyFilters());
@@ -357,11 +380,185 @@ class UnboundLogParser {
         this.statsSection.style.display = 'block';
         this.logSection.style.display = 'block';
     }
+
+    switchTab(tabType) {
+        if (tabType === 'file') {
+            this.fileTab.classList.add('active');
+            this.urlTab.classList.remove('active');
+            this.fileTabContent.style.display = 'block';
+            this.urlTabContent.style.display = 'none';
+        } else {
+            this.urlTab.classList.add('active');
+            this.fileTab.classList.remove('active');
+            this.urlTabContent.style.display = 'block';
+            this.fileTabContent.style.display = 'none';
+        }
+    }
+
+    async handleUrlFetch() {
+        const url = this.urlInput.value.trim();
+        if (!url) {
+            alert('Please enter a valid URL');
+            return;
+        }
+
+        this.showLoadingState(true);
+        this.fetchBtn.disabled = true;
+
+        try {
+            const logContent = await this.fetchLogFromUrl(url);
+            this.parseLogContent(logContent);
+            this.showSections();
+        } catch (error) {
+            console.error('Error fetching log:', error);
+            alert('Failed to fetch log from URL (CORS probably blocks fetch from this URL). Please check the URL and try again.\n\nError: ' + error.message);
+        } finally {
+            this.showLoadingState(false);
+            this.fetchBtn.disabled = false;
+        }
+    }
+
+    isValidUnboundTestUrl(url) {
+        try {
+            const urlObj = new URL(url);
+            // Accept various unbound test domains and similar log services
+            const validDomains = [
+                'unboundtest.com',
+                'www.unboundtest.com',
+                'dns.lookup.dog',
+                'dnscheck.tools',
+                'dnschecker.org'
+            ];
+            
+            return validDomains.some(domain => 
+                urlObj.hostname === domain || urlObj.hostname.endsWith('.' + domain)
+            );
+        } catch {
+            return false;
+        }
+    }
+
+    async fetchLogFromUrl(url) {
+        // For security reasons, we need to use a CORS proxy or handle this server-side
+        // For now, we'll try to fetch directly and handle CORS issues
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Accept': 'text/plain, text/html, */*'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const contentType = response.headers.get('content-type');
+            let content = await response.text();
+
+            // If the response is HTML, try to extract log content
+            if (contentType && contentType.includes('text/html')) {
+                content = this.extractLogFromHtml(content);
+            }
+
+            return content;
+        } catch (error) {
+            if (error.name === 'TypeError' && error.message.includes('CORS')) {
+                // Try using a CORS proxy as fallback
+                return await this.fetchWithCorsProxy(url);
+            }
+            throw error;
+        }
+    }
+
+    async fetchWithCorsProxy(url) {
+        // Use a public CORS proxy service
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+        
+        try {
+            const response = await fetch(proxyUrl);
+            if (!response.ok) {
+                throw new Error(`Proxy request failed: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            let content = data.contents;
+            
+            // If the content is HTML, extract log content
+            if (content.includes('<html') || content.includes('<!DOCTYPE')) {
+                content = this.extractLogFromHtml(content);
+            }
+            
+            return content;
+        } catch (error) {
+            throw new Error(`Failed to fetch via proxy: ${error.message}`);
+        }
+    }
+
+    extractLogFromHtml(htmlContent) {
+        // Create a temporary DOM element to parse HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlContent;
+
+        // Look for common patterns in unbound test result pages
+        let logContent = '';
+
+        // Try to find pre-formatted text blocks
+        const preElements = tempDiv.querySelectorAll('pre');
+        if (preElements.length > 0) {
+            logContent = Array.from(preElements)
+                .map(pre => pre.textContent)
+                .join('\n');
+        }
+
+        // Try to find code blocks
+        if (!logContent) {
+            const codeElements = tempDiv.querySelectorAll('code');
+            if (codeElements.length > 0) {
+                logContent = Array.from(codeElements)
+                    .map(code => code.textContent)
+                    .join('\n');
+            }
+        }
+
+        // Try to find text content that looks like logs
+        if (!logContent) {
+            const textContent = tempDiv.textContent || tempDiv.innerText || '';
+            const lines = textContent.split('\n');
+            
+            // Filter lines that look like log entries
+            const logLines = lines.filter(line => {
+                const trimmed = line.trim();
+                return trimmed && (
+                    /^\d{4}-\d{2}-\d{2}/.test(trimmed) || // Date format
+                    /^\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}/.test(trimmed) || // Syslog format
+                    trimmed.includes('[') && trimmed.includes(']:') || // Bracket format
+                    /\b(error|warning|info|debug|notice)\b/i.test(trimmed) // Log levels
+                );
+            });
+
+            if (logLines.length > 0) {
+                logContent = logLines.join('\n');
+            }
+        }
+
+        // If still no content found, return the plain text
+        if (!logContent) {
+            logContent = tempDiv.textContent || tempDiv.innerText || htmlContent;
+        }
+
+        return logContent;
+    }
+
+    showLoadingState(show) {
+        this.loadingIndicator.style.display = show ? 'flex' : 'none';
+    }
 }
 
 // Initialize the parser when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    new UnboundLogParser();
+    window.unboundParser = new UnboundLogParser();
 });
 
 // Add some sample functionality for demo purposes
@@ -380,4 +577,13 @@ window.loadSampleLog = function() {
     const parser = new UnboundLogParser();
     parser.parseLogContent(sampleLog);
     parser.showSections();
+};
+
+// Add sample URL for testing
+window.loadSampleUrl = function() {
+    const parser = window.unboundParser;
+    if (parser) {
+        parser.switchTab('url');
+        parser.urlInput.value = 'https://unboundtest.com/m/A/tecx.teamhgs.com/KX4TKRXH';
+    }
 };

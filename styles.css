@@ -94,6 +94,45 @@ header p {
     color: #764ba2;
 }
 
+/* Tab Navigation */
+.input-tabs {
+    display: flex;
+    background: white;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn:hover {
+    background: #e9ecef;
+}
+
+.tab-btn.active {
+    background: white;
+    border-bottom-color: #667eea;
+    color: #667eea;
+}
+
+.tab-content {
+    background: white;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
 /* Controls Section */
 .controls-section {
     background: white;
@@ -358,6 +397,84 @@ header p {
     border-radius: 2px;
 }
 
+/* URL Input Area */
+.url-input-area {
+    padding: 60px 20px;
+    text-align: center;
+    background: white;
+}
+
+.url-input-content h3 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.url-input-content p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.url-icon {
+    width: 48px;
+    height: 48px;
+    color: #667eea;
+    margin-bottom: 20px;
+}
+
+.url-input-group {
+    display: flex;
+    gap: 10px;
+    max-width: 600px;
+    margin: 0 auto;
+    align-items: stretch;
+}
+
+.url-input-group input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.url-input-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.url-input-group button {
+    padding: 12px 24px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
+    white-space: nowrap;
+}
+
+.url-input-group button:hover {
+    background: #764ba2;
+}
+
+.url-input-group button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    color: #667eea;
+    font-weight: 500;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
@@ -366,6 +483,33 @@ header p {
     
     header h1 {
         font-size: 2rem;
+    }
+    
+    .input-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-btn {
+        border-radius: 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .tab-btn:last-child {
+        border-bottom: none;
+    }
+    
+    .tab-btn.active {
+        border-left: 4px solid #667eea;
+        border-bottom-color: transparent;
+    }
+    
+    .url-input-group {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .url-input-group input {
+        width: 100%;
     }
     
     .controls {

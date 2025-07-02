@@ -5,6 +5,7 @@ A modern, web-based tool for parsing and analyzing Unbound DNS server logs with 
 ## Features
 
 - **Drag & Drop Interface**: Simply drag your log files into the browser
+- **URL Fetching**: Directly fetch logs from URLs like unboundtest.com links
 - **Multiple Log Formats**: Supports various Unbound log formats including standard, syslog, and custom formats
 - **Smart Parsing**: Automatically detects and categorizes log entries by severity
 - **Real-time Filtering**: Filter logs by level (Error, Warning, Info, Debug)
@@ -12,6 +13,7 @@ A modern, web-based tool for parsing and analyzing Unbound DNS server logs with 
 - **Statistics Dashboard**: View summary statistics of your log analysis
 - **Export Results**: Export filtered results as JSON for further analysis
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **CORS Proxy Support**: Handles cross-origin requests for external log sources
 
 ## Supported Log Formats
 
@@ -31,12 +33,21 @@ The parser recognizes several Unbound log formats:
 
 ## Usage
 
+### File Upload Method
 1. Open `index.html` in your web browser
-2. Drag and drop your Unbound log file onto the upload area, or click to browse files
-3. Use the filter controls to show/hide different log levels
-4. Search for specific terms using the search box
-5. View statistics in the summary dashboard
-6. Export results for further analysis
+2. Select the "Upload File" tab
+3. Drag and drop your Unbound log file onto the upload area, or click to browse files
+
+### URL Fetching Method
+1. Select the "Fetch from URL" tab
+2. Enter a URL containing Unbound log data (e.g., `https://unboundtest.com/m/A/example.com/ABC123`)
+3. Click "Fetch Log" to retrieve and parse the log data
+
+### Analysis Features
+4. Use the filter controls to show/hide different log levels
+5. Search for specific terms using the search box
+6. View statistics in the summary dashboard
+7. Export results for further analysis
 
 ## Sample Log Entry
 

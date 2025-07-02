@@ -11,11 +11,13 @@ This is a web-based Unbound DNS log parser built with HTML, CSS, and vanilla Jav
 
 ## Key Features
 - Drag-and-drop log file upload
+- URL fetching from external sources (unboundtest.com, etc.)
 - Real-time log parsing with multiple Unbound log format support
 - Error/warning/info highlighting with color coding
 - Search and filter functionality
 - Statistics dashboard showing log summary
 - Export functionality for analysis results
+- CORS proxy support for cross-origin requests
 
 ## Code Guidelines
 - Use modern JavaScript (ES6+) features
